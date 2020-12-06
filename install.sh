@@ -108,6 +108,7 @@ install(){
 
     _runAsRoot "mv /tmp/v2transparent.service /etc/systemd/system"
     _runAsRoot "systemctl daemon-reload"
+    _runAsRoot "systemctl enable v2transparent"
     echo "v2transparent.sh has been installed to ${this}/bin"
 
     # enable ipv4 forward
