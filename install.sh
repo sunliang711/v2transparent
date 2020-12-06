@@ -116,6 +116,7 @@ install(){
         (cat /etc/sysctl.conf ;echo 'net.ipv4.ip_forward=1') >/tmp/ipforward
         _runAsRoot "mv /tmp/ipforward /etc/sysctl.conf"
     fi
+    echo "${GREEN}Install dnsmasq for dns server when need${NORMAL}"
 }
 
 uninstall(){
