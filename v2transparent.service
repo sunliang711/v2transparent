@@ -1,0 +1,29 @@
+[Unit]
+Description=v2ray transparent proxy
+#After=network.target
+
+[Service]
+#Type=forking
+#PIDFile=
+#ExecStart=
+#ExecStop=
+
+#Type=oneshot
+#RemainAfterExit=yes
+#ExecStart=
+#ExecStop=
+
+Type=simple
+# ExecStartPre=
+ExecStart=START_CMD
+ExecStartPost=START_POST
+
+#ExecStop=STOP
+ExecStopPost=STOP_POST
+
+#User=USER
+WorkingDirectory=PWD
+#Restart=always
+#Environment=
+[Install]
+WantedBy=multi-user.target

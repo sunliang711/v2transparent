@@ -1,0 +1,140 @@
+{
+    "log": {
+      "loglevel": "info",
+      "access": "/tmp/v2transparent.log",
+      "error": "/tmp/v2transparent.log"
+    },
+    "inbounds": [
+        {
+            "port":12345,
+            "protocol": "dokodemo-door",
+            "settings": {
+                "network": "tcp,udp",
+                "followRedirect": true
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": ["http", "tls"]
+            }
+            ,"streamSettings": {
+                "sockopt": {
+                    "tproxy": "redirect" //??
+                }
+            }
+
+        }
+    ],
+    "outbounds": [
+      {
+          "tag": "proxy",
+          "protocol":"socks",
+          "settings":{
+              "auth":"noauth",
+              "servers": [
+                  {
+                    // SOCKS5 proxy
+                    "address": "NEXT_ADDRESS",
+                    "port": NEXT_PORT
+                  }
+                ]
+          },
+          "streamSettings": {
+            "sockopt": {
+                "mark": 255
+            }
+          }
+      },
+      {
+        "tag": "directIp",
+        "protocol": "freedom",
+        "settings": {
+        },
+        "streamSettings": {
+            "sockopt": {
+                "mark": 255
+            }
+        }
+      },
+      {
+        "tag": "adblock",
+        "protocol": "blackhole",
+        "settings": {
+        },
+        "streamSettings": {
+            "sockopt": {
+                "mark": 255
+            }
+        }
+      },
+      {
+          "tag":"directSite",
+          "protocol":"freedom",
+          "settings":{},
+          "streamSettings": {
+            "sockopt": {
+                "mark": 255
+            }
+          }
+      }
+    ],
+    // "dns":{
+    //     "servers":[
+    //         "8.8.8.8",
+    //         "1.1.1.1",
+    //         "114.114.114.114",
+    //         {
+    //             "address":"223.5.5.5",
+    //             "port":53,
+    //             "domains":[
+    //                 "geosite:cn"
+    //             ]
+
+    //         }
+    //     ]
+    // },
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+            "type":"field",
+            "outboundTag":"proxy",
+            "ip":[
+                "8.8.8.8",
+                "1.1.1.1"
+            ]
+        },
+        {
+            "type":"field",
+            "outboundTag":"proxy",
+            "domain":[
+                "google.com"
+            ]
+        },
+        {
+          "type": "field",
+          "outboundTag": "directIp",
+          "ip":[
+              "geoip:cn",
+              "geoip:private"
+          ]
+        },
+        {
+          "type": "field",
+          "outboundTag": "directSite",
+          "domain": [
+            // "geosite:speedtest",
+            "baidu.com",
+            "geosite:cn"
+          ]
+        },
+        {
+          "type": "field",
+          "outboundTag": "adblock",
+          "domain": [
+              "ad-website.com"
+          ]
+        }
+      ]
+    }
+  }
+
