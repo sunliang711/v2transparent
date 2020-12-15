@@ -187,6 +187,21 @@ _clear(){
 
 }
 
+config(){
+    local cfg=${this}/../v2transparent.json
+    local before="$(stat ${cfg} | grep 'Modify')"
+    ${editor} ${cfg}
+    local after="$(stat ${cfg} | grep 'Modify')"
+
+    if [ "${before}" != "${after}" ];then
+        echo "Restart service..."
+        restart
+    else
+        echo "Config file not changed,do nothing."
+    fi
+
+}
+
 em(){
     $editor $0
 }
