@@ -98,6 +98,14 @@ mark=255
 dekodemoPort=12345
 tableName=V2_TRANSPARENT
 
+iptables=
+if command -v iptables >/dev/null 2>&1;then
+    iptables="iptables"
+fi
+if command -v iptables-legacy >/dev/null 2>&1;then
+    iptables="iptables-legacy"
+fi
+
 start(){
     # _set
     # ../Linux/v2ray -c ./transparent.json
@@ -124,12 +132,6 @@ log(){
 _set(){
     _root
     # sysctl -w net.ipv4.ip_forward=1
-    if command -v iptables >/dev/null 2>&1;then
-        local iptables="iptables"
-    fi
-    if command -v iptables-legacy >/dev/null 2>&1;then
-        local iptables="iptables-legacy"
-    fi
     echo "Found ${iptables}"
     if [ -z "${iptables}" ];then
         _err "Not find iptables command."
@@ -167,20 +169,17 @@ _set(){
 _clear(){
     _root
     # sysctl -w net.ipv4.ip_forward=0
-    if command -v iptables >/dev/null 2>&1;then
-        local iptables="iptables"
-    fi
-    if command -v iptables-legacy >/dev/null 2>&1;then
-        local iptables="iptables-legacy"
-    fi
     echo "Found ${iptables}"
     if [ -z "${iptables}" ];then
         _err "Not find iptables command."
         return 1
     fi
 
+    # remove reference
     ${iptables} -t nat -D PREROUTING -p tcp -j ${tableName}
+    # remove reference
     ${iptables} -t nat -D OUTPUT -p tcp -j ${tableName}
+
     ${iptables} -t nat -F ${tableName}
     ${iptables} -t nat -X ${tableName}
 
