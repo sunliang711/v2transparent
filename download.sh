@@ -39,6 +39,13 @@ case $(uname) in
         ;;
 esac
 
+# rasperberry arm64
+if [ $(uname -m) == "aarch64" ];then
+    url=https://source711.oss-cn-shanghai.aliyuncs.com/v2ray/${version}/Linux/v2ray-linux-arm64-v8a.zip
+    zipfile=${url##*/}
+    dest=$root/Linux
+fi
+
 if [ -d "$dest" ];then
     rm -rf "$dest"
 fi
