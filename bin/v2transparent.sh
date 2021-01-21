@@ -102,9 +102,9 @@ iptables=
 if command -v iptables >/dev/null 2>&1;then
     iptables="iptables"
 fi
-if command -v iptables-legacy >/dev/null 2>&1;then
-    iptables="iptables-legacy"
-fi
+# if command -v iptables-legacy >/dev/null 2>&1;then
+#     iptables="iptables-legacy"
+# fi
 
 start(){
     # _set
