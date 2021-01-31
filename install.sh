@@ -82,6 +82,7 @@ fi
 ###############################################################################
 # TODO
 serviceName=v2transparent
+next_file=next_file
 install(){
     cd ${this}
 
@@ -105,6 +106,8 @@ install(){
     sed -e "s|NEXT_ADDRESS|${next_address}|g" \
         -e "s|NEXT_PORT|${next_port}|g" \
         ./v2transparent.json.tmpl >./v2transparent.json
+
+    echo "${next_address}:${next_port}" >"${next_file}"
 
     _runAsRoot "mv /tmp/v2transparent.service /etc/systemd/system"
     _runAsRoot "systemctl daemon-reload"

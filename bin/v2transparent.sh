@@ -102,9 +102,9 @@ iptables=
 if command -v iptables >/dev/null 2>&1;then
     iptables="iptables"
 fi
-if command -v iptables-legacy >/dev/null 2>&1;then
-    iptables="iptables-legacy"
-fi
+# if command -v iptables-legacy >/dev/null 2>&1;then
+#     iptables="iptables-legacy"
+# fi
 
 start(){
     # _set
@@ -131,6 +131,21 @@ log(){
 
 _set(){
     _root
+    local next_file=${this}/../next_file
+    local next_address="$(awk -F: '{print $1}' ${next_file})"
+    local next_port="$(awk -F: '{print $2}' ${next_file})"
+    echo "next_address: ${next_address}"
+    echo "next_port: ${next_port}"
+
+    while true;do
+        echo "Wait next address woring..."
+        if curl -m 3 -x socks5://${next_address}:${next_port} google.com >/dev/null 2>&1;then
+            break
+        fi
+        sleep 2
+    done
+    echo "Next address is working now..."
+
     # sysctl -w net.ipv4.ip_forward=1
     echo "Found ${iptables}"
     if [ -z "${iptables}" ];then
