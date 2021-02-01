@@ -106,7 +106,22 @@ fi
 #     iptables="iptables-legacy"
 # fi
 
+logfile=/tmp/v2transparent.log
+_redir_log(){
+    exec 3>&1
+    exec 4>&2
+    exec 1>>${logfile}
+    exec 2>>${logfile}
+}
+
+_restore(){
+    exec 1>&3 3>&-
+    exec 2>&4 4>&-
+}
+
+
 start(){
+    _redir_log
     # _set
     # ../Linux/v2ray -c ./transparent.json
 
@@ -114,6 +129,7 @@ start(){
 }
 
 stop(){
+    _redir_log
     _runAsRoot "systemctl stop v2transparent"
 }
 
@@ -129,7 +145,9 @@ log(){
 }
 
 
+# start post
 _set(){
+    _redir_log
     _root
     local next_file=${this}/../next_file
     local next_address="$(awk -F: '{print $1}' ${next_file})"
@@ -181,7 +199,9 @@ _set(){
     ${iptables} -t nat -A OUTPUT -p tcp -j ${tableName}
 }
 
+# stop post
 _clear(){
+    _redir_log
     _root
     # sysctl -w net.ipv4.ip_forward=0
     echo "Found ${iptables}"
