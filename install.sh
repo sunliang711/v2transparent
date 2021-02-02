@@ -89,7 +89,7 @@ install(){
     next_address=${1:?'missing next_address'}
     next_port=${2:?'missing next_port'}
 
-    bash ./download.sh
+    bash ./download.sh || {  echo "Install v2ray failed!"; exit 1; }
     v2ray_path="${this}/Linux/v2ray"
     if [ ! -e ${v2ray_path} ];then
         echo "v2ray path not exist." >&2
