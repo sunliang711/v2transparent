@@ -121,7 +121,6 @@ _restore(){
 
 
 start(){
-    _redir_log
     # _set
     # ../Linux/v2ray -c ./transparent.json
 
@@ -129,7 +128,6 @@ start(){
 }
 
 stop(){
-    _redir_log
     _runAsRoot "systemctl stop v2transparent"
 }
 
@@ -147,7 +145,6 @@ log(){
 
 # start post
 _set(){
-    _redir_log
     _root
     local next_file=${this}/../next_file
     local next_address="$(awk -F: '{print $1}' ${next_file})"
@@ -201,7 +198,6 @@ _set(){
 
 # stop post
 _clear(){
-    _redir_log
     _root
     # sysctl -w net.ipv4.ip_forward=0
     echo "Found ${iptables}"
