@@ -52,7 +52,10 @@ fi
 mkdir "$dest"
 
 if [ ! -e "$zipfile" ];then
+    echo "Download $zipfile"
     curl -LO "$url" || { echo "download $zipfile error"; exit 1; }
+echo
+    echo "Use $zipfile cache file"
 fi
 
 echo "unzip zipfile: $zipfile..."

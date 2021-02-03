@@ -85,9 +85,18 @@ serviceName=v2transparent
 next_file=next_file
 install(){
     cd ${this}
+    if [ $# -eq 0 ];then
+        echo "Usage: install <address:port> [user:pass]"
+        return 1
+    fi
+    local next_hop="${1}"
+    local credential="${2}"
 
-    next_address=${1:?'missing next_address'}
-    next_port=${2:?'missing next_port'}
+    local next_address="${next_hop%:*}"
+    local next_port="${next_hop#*:}"
+    echo "next_address: ${next_address}"
+    echo "next_port: ${next_port}"
+
 
     bash ./download.sh || {  echo "Install v2ray failed!"; exit 1; }
     v2ray_path="${this}/Linux/v2ray"
@@ -103,16 +112,40 @@ install(){
         -e "s|STOP_POST|${this}/bin/v2transparent.sh _clear|g" \
         ./v2transparent.service > /tmp/${serviceName}.service
 
-    sed -e "s|NEXT_ADDRESS|${next_address}|g" \
-        -e "s|NEXT_PORT|${next_port}|g" \
-        ./v2transparent.json.tmpl >./v2transparent.json
+    outboundFile=outbound.tmpl
+    if [ -n "${credential}" ];then
+        local user="${credential%:*}"
+        local pass="${credential#*:}"
+        cat>${outboundFile}<<-EOF
+// NEXT HOP: ${credential}@${next_address}:${next_port}
+"address": "${next_address}",
+"port": ${next_port},
+"users":[
+     {
+         "user":"${user}",
+         "pass":"${pass}"
+     }
+ ]
+EOF
+    else
+        cat>${outboundFile}<<-EOF
+// NEXT HOP: ${next_address}:${next_port}
+"address": "${next_address}",
+"port": ${next_port}
+EOF
+    fi
+    sed -n -e '1,/OUTBOUND_SERVER/p' v2transparent.json.tmpl | sed '$d' > ${this}/v2transparent.json
+    cat ${outboundFile} >> ${this}/v2transparent.json
+    sed -n -e '/OUTBOUND_SERVER/,$p' v2transparent.json.tmpl | sed '1d' >> ${this}/v2transparent.json
 
-    echo "${next_address}:${next_port}" >"${next_file}"
+
+    # echo "${next_address}:${next_port}" >"${next_file}"
 
     _runAsRoot "mv /tmp/v2transparent.service /etc/systemd/system"
     _runAsRoot "systemctl daemon-reload"
     _runAsRoot "systemctl enable v2transparent"
     echo "v2transparent.sh has been installed to ${this}/bin"
+    export PATH="${this}/bin:$PATH"
 
     # enable ipv4 forward
     if ! grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf;then

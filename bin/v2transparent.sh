@@ -146,15 +146,17 @@ log(){
 # start post
 _set(){
     _root
-    local next_file=${this}/../next_file
-    local next_address="$(awk -F: '{print $1}' ${next_file})"
-    local next_port="$(awk -F: '{print $2}' ${next_file})"
-    echo "next_address: ${next_address}"
-    echo "next_port: ${next_port}"
+    # local next_file=${this}/../next_file
+    # local next_address="$(awk -F: '{print $1}' ${next_file})"
+    # local next_port="$(awk -F: '{print $2}' ${next_file})"
+    # echo "next_address: ${next_address}"
+    # echo "next_port: ${next_port}"
+    local next_hop="$(perl -lne 'print $1 if/NEXT HOP:\s*(\S+)/' ${this}/../v2transparent.json)"
+    echo "next_hop: '${next_hop}'"
 
     while true;do
-        echo "Wait next address woring..."
-        if curl -m 3 -x socks5://${next_address}:${next_port} google.com >/dev/null 2>&1;then
+        echo "Wait next hop working..."
+        if curl -m 3 -x socks5://${next_hop} google.com >/dev/null 2>&1;then
             break
         fi
         sleep 2
